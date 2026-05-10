@@ -1,14 +1,13 @@
 """
 پنل مدیریت - مدیریت محصولات، سفارشات، کاربران
 """
-import json
 import logging
 import os
 from datetime import datetime
 from utils.bale_api import bot
 from utils.database import Database
 from utils.safir_api import safir
-from config import SHOP_NAME, SUPER_ADMIN_ID, ORDERS_FILE, PRODUCTS_FILE, DATA_DIR, logger
+from config import SHOP_NAME, SUPER_ADMIN_ID, logger
 
 logger = logging.getLogger("AdminHandler")
 
@@ -110,7 +109,7 @@ class AdminHandler:
                 msg += f"{p['id']} - {p['name']} - {p['price']}\n"
             rows = []
             for p in products[:5]:
-                rows.append([{"text": f"حذف {p['id']} {p['name'][:15]}", "callback_data": f"del_product_{p['id']}"}])
+                rows.append([{"text": f"حذف {p.get('id','?')} {p.get('name','')[:15]}", "callback_data": f"del_product_{p.get('id','?')}"}])
             rows.append([{"text": "➕ افزودن محصول جدید", "callback_data": "admin_add_product"}])
             rows.append([{"text": "بازگشت", "callback_data": "admin_panel"}])
         if msg_id: bot.edit_message_text(chat_id, msg_id, msg[:4000], reply_markup=bot.inline_keyboard(rows))
@@ -379,20 +378,28 @@ class AdminHandler:
     @staticmethod
     def show_groups_panel(chat_id, user_id, cq_id, msg_id):
         bot.answer_callback_query(cq_id, "گروه‌ها")
-        gf = os.path.join(DATA_DIR, "groups.json")
-        msg = "گروه‌ها و کانال‌ها\n\n"
-        if os.path.exists(gf):
-            try:
-                with open(gf) as f: gd = json.load(f)
-                groups = gd.get("groups",{}); channels = gd.get("channels",{})
-                if groups: msg += f"گروه‌ها ({len(groups)}):\n" + "\n".join([f"- {g.get('title','?')}" for gid,g in list(groups.items())[:10]]) + "\n"
-                if channels: msg += f"\nکانال‌ها ({len(channels)}):\n" + "\n".join([f"- {c.get('title','?')}" for cid,c in list(channels.items())[:10]]) + "\n"
-                if not groups and not channels: msg += "موردی ثبت نشده.\nربات را به گروه اضافه کنید."
-            except: msg += "خطا در خواندن."
-        else: msg += "موردی ثبت نشده."
+        try:
+            data = Database.get_all_groups_and_channels()
+            groups = data.get("groups",{})
+            channels = data.get("channels",{})
+            msg = "گروه‌ها و کانال‌ها\n\n"
+            if groups:
+                msg += f"گروه‌ها ({len(groups)}):\n"
+                msg += "\n".join([f"- {g.get('title','?')}" for gid,g in list(groups.items())[:10]])
+                msg += "\n"
+            if channels:
+                msg += f"\nکانال‌ها ({len(channels)}):\n"
+                msg += "\n".join([f"- {c.get('title','?')}" for cid,c in list(channels.items())[:10]])
+                msg += "\n"
+            if not groups and not channels:
+                msg += "موردی ثبت نشده.\nربات را به گروه اضافه کنید."
+        except Exception as e:
+            msg = f"خطا در دریافت اطلاعات: {e}"
         kb = bot.inline_keyboard([[{"text":"بازگشت","callback_data":"admin_panel"}]])
-        if msg_id: bot.edit_message_text(chat_id, msg_id, msg[:4000], reply_markup=kb)
-        else: bot.send_message(chat_id, msg[:4000], reply_markup=kb)
+        if msg_id:
+            bot.edit_message_text(chat_id, msg_id, msg[:4000], reply_markup=kb)
+        else:
+            bot.send_message(chat_id, msg[:4000], reply_markup=kb)
 
     @staticmethod
     def close_panel(chat_id, user_id, cq_id, msg_id):

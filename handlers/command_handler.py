@@ -235,7 +235,7 @@ class CommandHandler:
             updates = order.get('status_updates', [])
             history = chr(10).join([u['time'][:16] + " - " + status_map.get(u['to'],u['to']) for u in updates[-3:]])
             msg = "پیگیری سفارش\n\n"
-            msg += "کد سفارش: " + str(order.get('id','')) + "\n"
+            msg += "کد سفارش: " + str(order.get('order_id','')) + "\n"
             msg += "کد رهگیری: " + str(order.get('tracking_code','-')) + "\n"
             msg += "وضعیت: " + status_map.get(order.get('status',''),order.get('status','')) + "\n"
             msg += "مشتری: " + str(order.get('customer_name','')) + "\n\n"
@@ -252,8 +252,8 @@ class CommandHandler:
         msg += "برای جستجو با کد رهگیری:\n/track [کد رهگیری]\n\n"
         for o in orders[-5:]:
             items = ", ".join([i.get('name','')[:20] for i in o.get('items',[])])
-            st = status_map.get(o['status'], o['status'])
-            msg += str(o.get('order_id', o.get('_id', '?'))) + "\n" + items + "\nوضعیت: " + st + "\nرهگیری: " + str(o.get('tracking_code','-')) + "\nتاریخ: " + str(o.get('created_at','')[:10]) + "\n\n"
+            st = status_map.get(o.get('status','pending'), o.get('status','pending'))
+            msg += str(o.get('order_id', o.get('_id', '?'))) + "\n" + items + "\nوضعیت: " + st + "\nرهگیری: " + str(o.get('tracking_code','-')) + "\nتاریخ: " + str(o.get('created_at','')[:10] if o.get('created_at') else '-') + "\n\n"
         bot.send_message(chat_id, msg[:4000])
     @staticmethod
     def cmd_support(chat_id, user_id, args, msg_id):

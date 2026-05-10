@@ -113,11 +113,11 @@ class Database:
 
     @classmethod
     def get_all_users(cls):
-        return {d["chat_id"]: d for d in cls._get_db().users.find().sort("last_seen", -1)}
+        return {d.get("chat_id", ""): d for d in cls._get_db().users.find().sort("last_seen", -1)}
 
     @classmethod
     def get_all_chat_ids(cls):
-        return [d["chat_id"] for d in cls._get_db().users.find({"is_blocked": {"$ne": True}}, {"chat_id":1})]
+        return [d.get("chat_id", "") for d in cls._get_db().users.find({"is_blocked": {"$ne": True}}, {"chat_id":1}) if d.get("chat_id")]
 
     @classmethod
     def get_user_count(cls):

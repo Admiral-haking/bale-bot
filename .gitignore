@@ -1,7 +1,61 @@
+# ==================== Python ====================
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.Python
+env/
+venv/
+.venv/
+
+# ==================== Environment & Config ====================
 .env
+.env.local
+.env.production
+.env.development
+
+# ==================== Logs ====================
 logs/
-data/
-.DS_Store
 *.log
+*.pid
+
+# ==================== Data (Legacy JSON) ====================
+data/
+
+# ==================== IDE & Editors ====================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ==================== System ====================
+*.pid
+*.seed
+*.pid.lock
+
+# ==================== Test & Coverage ====================
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+htmlcov/
+
+# ==================== Jupyter ====================
+.ipynb_checkpoints/
+
+# ==================== OS Files ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

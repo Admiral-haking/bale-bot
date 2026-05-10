@@ -2,8 +2,6 @@
 مدیریت گروه و کانال - نسخه ساده
 """
 import logging
-import os
-from datetime import datetime
 from utils.bale_api import bot
 from utils.database import Database
 from config import SHOP_NAME, DATA_DIR, logger
@@ -13,12 +11,11 @@ logger = logging.getLogger("ChannelHandler")
 admin_selected_chat = {}
 
 def save_new_group(chat_id, title, chat_type):
-    data = Database.get_all_groups_and_channels()
-    key = "channels" if chat_type == "channel" else "groups"
-    cid = str(chat_id)
-    if cid not in data.get(key, {}):
-        data.setdefault(key, {})[cid] = {"id": cid, "title": title or "بدون نام", "type": chat_type, "first_seen": datetime.now().isoformat()}
-        pass
+    """ذخیره گروه/کانال در MongoDB"""
+    try:
+        Database.save_group(chat_id, title, chat_type)
+    except Exception as e:
+        logger.debug(f"Group save error (non-critical): {e}")
 
 def get_saved_groups_list():
     data = Database.get_all_groups_and_channels()

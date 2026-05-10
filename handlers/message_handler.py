@@ -118,7 +118,7 @@ class MessageHandler:
         for t in existing:
             if t["status"] in ("open", "admin_replied"): open_ticket = t; break
         if open_ticket:
-            Database.add_to_ticket(open_ticket["id"], "customer", text, message.get("message_id"))
+            Database.add_to_ticket(open_ticket["ticket_id"], "customer", text, message.get("message_id"))
             bot.send_message(chat_id, "پیام شما به تیکت اضافه شد.")
             is_new = False
         elif text:
@@ -131,7 +131,7 @@ class MessageHandler:
 
         admins = Database.get_all_admin_ids()
         name = message.get("from",{}).get("first_name","کاربر")
-        info = f"پیام جدید از {name} ({user_id})\nتیکت: {ticket_id if is_new else open_ticket['id']}\n{(text or '[رسانه]')[:200]}"
+        info = f"پیام جدید از {name} ({user_id})\nتیکت: {ticket_id if is_new else open_ticket['ticket_id']}\n{(text or '[رسانه]')[:200]}"
         kb = bot.inline_keyboard([[{"text":"پاسخ","callback_data":f"reply_to_{user_id}"}],[{"text":"بستن","callback_data":f"ticket_close_{ticket_id}"}]])
         for admin_id in admins:
             if str(admin_id) != str(user_id):
@@ -146,6 +146,6 @@ class MessageHandler:
             tickets = Database.get_customer_tickets(target_user_id)
             if tickets:
                 open_t = [t for t in tickets if t["status"] != "closed"]
-                if open_t: Database.add_to_ticket(open_t[-1]["id"], "admin", text)
+                if open_t: Database.add_to_ticket(open_t[-1]["ticket_id"], "admin", text)
             bot.send_message(admin_chat_id, f"پاسخ به {target_user_id} ارسال شد.")
         else: bot.send_message(admin_chat_id, f"خطا: {result.get('error')}")
