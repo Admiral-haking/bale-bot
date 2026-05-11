@@ -21,6 +21,8 @@ class CallbackHandler:
             AdminHandler.handle_broadcast_flow(chat_id, user_id, data, cq_id, msg_id)
         elif data.startswith("admin_"):
             AdminHandler.handle(chat_id, user_id, data, cq_id, msg_id)
+        elif data.startswith("del_product_"):
+            AdminHandler.handle(chat_id, user_id, data, cq_id, msg_id)
         elif data.startswith("safir_"):
             CallbackHandler.handle_safir(chat_id, user_id, data, cq_id, msg_id)
         elif data.startswith("channel_"):

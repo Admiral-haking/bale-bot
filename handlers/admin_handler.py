@@ -36,6 +36,8 @@ class AdminHandler:
             AdminHandler.notify_user(chat_id, user_id, data, cq_id, msg_id); return
         if data.startswith("bcast_"):
             AdminHandler.handle_broadcast_flow(chat_id, user_id, data, cq_id, msg_id); return
+        if data == "admin_add_product":
+            AdminHandler.add_product_action(chat_id, user_id, cq_id, msg_id); return
         
         actions = {
             "admin_panel": AdminHandler.admin_panel,
@@ -116,11 +118,23 @@ class AdminHandler:
         else: bot.send_message(chat_id, msg[:4000], reply_markup=bot.inline_keyboard(rows))
 
     @staticmethod
+    def add_product_action(chat_id, user_id, cq_id, msg_id):
+        bot.answer_callback_query(cq_id, "افزودن محصول")
+        msg = "افزودن محصول جدید\n\nفرمت:\n/saveproduct نام|قیمت|توضیحات|دسته|موجودی\n\nمثال:\n/saveproduct روغن زیتون|۵۰۰۰۰|روغن زیتون طبیعی|روغن ها|موجود\n\nیا از دستور /addproduct استفاده کنید."
+        kb = bot.inline_keyboard([
+            [{"text": "بازگشت به محصولات", "callback_data": "admin_products"}],
+            [{"text": "پنل مدیریت", "callback_data": "admin_panel"}]
+        ])
+        if msg_id:
+            bot.edit_message_text(chat_id, msg_id, msg, reply_markup=kb)
+        else:
+            bot.send_message(chat_id, msg, reply_markup=kb)
+    @staticmethod
     def delete_product_action(chat_id, user_id, data, cq_id, msg_id):
         pid = data.replace("del_product_", "")
         if Database.delete_product(pid):
             bot.answer_callback_query(cq_id, f"{pid} حذف شد")
-            AdminHandler.show_products_panel(chat_id, user_id, cq_id, msg_id)
+            AdminHandler.show_products_panel(chat_id, user_id, None, msg_id)
         else:
             bot.answer_callback_query(cq_id, "خطا", show_alert=True)
 
@@ -320,7 +334,7 @@ class AdminHandler:
         tid = data.replace("ticket_close_", "")
         if Database.close_ticket(tid):
             bot.answer_callback_query(cq_id, "بسته شد")
-            AdminHandler.show_tickets(chat_id, user_id, cq_id, msg_id)
+            AdminHandler.show_tickets(chat_id, user_id, None, msg_id)
         else: bot.answer_callback_query(cq_id, "خطا", show_alert=True)
 
     # ============================================================
@@ -368,7 +382,7 @@ class AdminHandler:
         if not Database.is_super_admin(user_id): bot.answer_callback_query(cq_id, "دسترسی ندارید", show_alert=True); return
         tid = int(data.replace("admin_remove_",""))
         if tid == SUPER_ADMIN_ID: bot.answer_callback_query(cq_id, "نمی‌توانید", show_alert=True); return
-        if Database.remove_admin(tid): bot.answer_callback_query(cq_id, f"{tid} حذف شد"); AdminHandler.manage_admins(chat_id, user_id, cq_id, msg_id)
+        if Database.remove_admin(tid): bot.answer_callback_query(cq_id, f"{tid} حذف شد"); AdminHandler.manage_admins(chat_id, user_id, None, msg_id)
         else: bot.answer_callback_query(cq_id, "خطا", show_alert=True)
 
     # ============================================================
