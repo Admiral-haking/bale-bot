@@ -438,3 +438,24 @@ pm2 startup
     <sub>© 2025 Teb Ahmadi. All rights reserved.</sub>
   </p>
 </div>
+
+---
+
+## 💡 Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| **Bot Framework** | python-telegram-bot | Mature library with async support and webhook mode |
+| **Database** | SQLite | Lightweight, zero-config, sufficient for single-server deployment |
+| **Deployment** | Polling + systemd | Simple, reliable, automatic restart on failure |
+| **Language** | Python | Fast development, rich ecosystem for bot development |
+
+## 🚀 Production Checklist
+
+- [x] Automated deployment script
+- [x] Error handling & retry logic
+- [x] Logging system
+- [x] Graceful shutdown
+- [ ] Database backup
+- [ ] Monitoring & alerting
+- [ ] Load testing
